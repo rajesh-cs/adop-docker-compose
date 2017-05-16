@@ -34,23 +34,12 @@ ldap:
     INITIAL_ADMIN_USER: ${INITIAL_ADMIN_USER}
     INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD}
     JENKINS_PASSWORD: ${JENKINS_PWD}
-    GERRIT_PASSWORD: ${GERRIT_PWD}
+    GITLAB_PASSWORD: ${GITLAB_PWD}
     SLAPD_PASSWORD: ${LDAP_PWD}
     SLAPD_DOMAIN: ${LDAP_DOMAIN}
     SLAPD_FULL_DOMAIN: ${LDAP_FULL_DOMAIN}
 
-gerrit-mysql:
-  container_name: gerrit-mysql
-  restart: always
-  image: mysql:5.6.25
-  net: ${CUSTOM_NETWORK_NAME}
-  expose:
-    - "3306"
-  environment:
-    MYSQL_ROOT_PASSWORD: ${PASSWORD_SQL}
-    MYSQL_USER: ${GERRIT_MYSQL_USER}
-    MYSQL_PASSWORD: ${GERRIT_MYSQL_PASSWORD}
-    MYSQL_DATABASE: ${GERRIT_MYSQL_DATABASE}
+
 
 gitlab:
   container_name: gitlab
@@ -143,7 +132,7 @@ sensu-client:
     CLIENT_ADDRESS: 127.0.0.1
     RABBITMQ_HOST: sensu-rabbitmq
     JENKINS_PREFIX: jenkins
-    CLIENT_SUBSCRIPTIONS: "proxy,gerrit,jenkins,nexus,sonarqube,sensu,kibana"
+    CLIENT_SUBSCRIPTIONS: "proxy,gitlab,jenkins,nexus,sonarqube,sensu,kibana"
 
 sensu-rabbitmq:
   container_name: sensu-rabbitmq
@@ -232,10 +221,10 @@ jenkins:
     LDAP_GROUP_NAME_ADMIN: "${LDAP_GROUP_NAME_ADMIN}"
     INITIAL_ADMIN_USER: ${INITIAL_ADMIN_USER}
     INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD_PLAIN}
-    GERRIT_HOST_NAME: "gerrit"
-    GERRIT_FRONT_END_URL: "http://gerrit:8080/gerrit"
-    GERRIT_JENKINS_USERNAME: "${GERRIT_JENKINS_USERNAME}"
-    GERRIT_JENKINS_PASSWORD: ${PASSWORD_JENKINS}
+    GITLAB_HOST_NAME: "gitlab"
+    GITLAB_FRONT_END_URL: "http://gitlab:8080/gitlab"
+    GITLAB_JENKINS_USERNAME: "${GITLAB_JENKINS_USERNAME}"
+    GITLAB_JENKINS_PASSWORD: ${PASSWORD_JENKINS}
     SONAR_SERVER_URL: "http://sonar:9000/sonar/"
     SONAR_ACCOUNT_LOGIN: ${SONAR_ACCOUNT_LOGIN}
     SONAR_ACCOUNT_PASSWORD: ${PASSWORD_JENKINS}

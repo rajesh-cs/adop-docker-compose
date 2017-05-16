@@ -52,46 +52,48 @@ gerrit-mysql:
     MYSQL_PASSWORD: ${GERRIT_MYSQL_PASSWORD}
     MYSQL_DATABASE: ${GERRIT_MYSQL_DATABASE}
 
-gerrit:
-  container_name: gerrit
+gitlab:
+  container_name: gitlab
   restart: always
-  #build: ../images/docker-gerrit/
-  image: accenture/adop-gerrit:0.1.3
-  privileged: true
+  image: adop.registry:5000/gitlab-ce:latest
   net: ${CUSTOM_NETWORK_NAME}
   expose:
-    - "8080"
-    - "29418"
+    - "80"
+    - "443"
+    - "22"
+  ports:
+    - "9080:80"
+    - "9022:22"
   environment:
-    - "dependency:container==gerrit-mysql"
-    - "REPO_PATH=/var/git/repos"
-    - "WEBURL=${PROTO}://${TARGET_HOST}/gerrit/"
-    - "DATABASE_TYPE=mysql"
-    - "DB_HOSTNAME=gerrit-mysql"
-    - "DB_PORT=3306"
-    - "DB_NAME=${GERRIT_MYSQL_DATABASE}"
-    - "DB_USER=${GERRIT_MYSQL_USER}"
-    - "DB_PASSWORD=${GERRIT_MYSQL_PASSWORD}"
-    - "AUTH_LOGOUTURL=${PROTO}://${TARGET_HOST}/gerrit/"
-    - "AUTH_TYPE=LDAP"
-    - "GERRIT_PASSWORD=${PASSWORD_GERRIT}"
-    - "JENKINS_PASSWORD=${PASSWORD_JENKINS}"
-    - "INITIAL_ADMIN_USER=${INITIAL_ADMIN_USER}"
-    - "INITIAL_ADMIN_PASSWORD=${INITIAL_ADMIN_PASSWORD_PLAIN}"
-    - "LDAP_SERVER=${LDAP_SERVER}"
-    - "LDAP_ACCOUNTBASE=${LDAP_FULL_DOMAIN}"
-    - "LDAP_ACCOUNTPATTERN=${LDAP_ACCOUNTPATTERN}"
-    - "LDAP_ACCOUNTFULLNAME=${LDAP_ACCOUNTFULLNAME}"
-    - "LDAP_ACCOUNTEMAILADDRESS=mail"
-    - "LDAP_USERNAME=${LDAP_ADMIN},${LDAP_FULL_DOMAIN}"
-    - "LDAP_PASSWORD=${LDAP_PWD}"
-    - "LDAP_GROUPBASE=${LDAP_GROUP_BASE_DN},${LDAP_FULL_DOMAIN}"
-    - "LDAP_GROUPPATTERN=${LDAP_GROUPPATTERN}"
-    - "LDAP_GROUPMEMBERPATTERN=${LDAP_GROUPMEMBERPATTERN}"
-    - "HTTPD_LISTENURL=proxy-${PROTO}://0.0.0.0:8080/gerrit"
-    - "USER_NAME=${GERRIT_USER_NAME}"
-    - "USER_EMAIL=${GERRIT_USER_EMAIL}"
-    - "DOWNLOAD_SCHEME=http"
+    GITLAB_ROOT_PASSWORD: ${PASSWORD_GITLAB}
+    GITLAB_OMNIBUS_CONFIG: |
+     external_url 'http://${NGINX_PROXY_HOST}/gitlab'
+     gitlab_rails['ldap_enabled'] = true
+     gitlab_rails['ldap_servers'] = YAML.load <<-'EOS'
+       main:
+         label: 'MOHH Users'
+         host: ${LDAP_SERVER}
+         port: ${LDAP_PORT}
+         uid: '${LDAP_USER_SEARCH}'
+         method: 'plain'
+         bind_dn: '${LDAP_BIND_DN}'
+         password: '${LDAP_PWD}'
+         active_directory: true
+         allow_username_or_email_login: false
+         block_auto_created_users: false
+         base: '${LDAP_FULL_DOMAIN}'
+     EOS
+     gitlab_rails['smtp_enable'] = '${GITLAB_SMTP_ENABLED}'
+     gitlab_rails['smtp_address'] = '${SMTP_HOST}'
+     gitlab_rails['smtp_port'] = '${SMTP_PORT}'
+     gitlab_rails['smtp_user_name'] = '${SMTP_USER}'
+     gitlab_rails['smtp_password'] = '${SMTP_PASSWORD}'
+     gitlab_rails['smtp_domain'] = '${SMTP_DOMAIN}'
+     gitlab_rails['smtp_authentication'] = 'login'
+     gitlab_rails['smtp_enable_starttls_auto'] = false
+     gitlab_rails['smtp_tls'] = false
+     gitlab_rails['smtp_openssl_verify_mode'] = 'none'
+     gitlab_rails['gitlab_email_from'] = '${SYSAD_EMAIL}'
 
 sensu-uchiwa:
   container_name: sensu-uchiwa

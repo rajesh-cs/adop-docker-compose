@@ -19,6 +19,7 @@ proxy:
     - "LDAP_GROUP_ATTRIBUTE=member"
     - "LDAP_USER_ID_ATTRIBUTE=cn"
     - "LDAP_USER_OBJECT_CLASS=inetOrgPerson"
+    - "GIT_REPO=gitlab"
 
 ldap:
   container_name: ldap
@@ -44,7 +45,7 @@ ldap:
 gitlab:
   container_name: gitlab
   restart: always
-  image: adop.registry:5000/gitlab-ce:latest
+  image: gitlab/gitlab-ce:latest
   net: ${CUSTOM_NETWORK_NAME}
   expose:
     - "80"

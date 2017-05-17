@@ -45,7 +45,7 @@ ldap:
 gitlab:
   container_name: gitlab
   restart: always
-  image: gitlab/gitlab-ce:latest
+  image: gitlab/gitlab-ce
   net: ${CUSTOM_NETWORK_NAME}
   expose:
     - "80"
